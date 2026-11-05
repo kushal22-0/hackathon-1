@@ -1,54 +1,19 @@
-import { Bell, ChevronRight, LogOut, Search } from "lucide-react"
+import { useState } from "react"
+import { Bell, ChevronRight, LogOut, Search, X } from "lucide-react"
 import { useAuth } from "@/lib/auth"
 import { BrandLockup } from "@/components/brand-lockup"
-
-interface TopBarProps {
-  user: { displayName: string; role: string } | null
-}
-
-export function TopBar({ user }: TopBarProps) {
-  const { logout } = useAuth()
-
-  return (
-    <header className="flex h-16 items-center justify-between border-b border-border px-6">
-      <div className="flex items-center gap-3 sm:hidden">
-        <BrandLockup collapsed={true} />
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>Workspace</span>
-        <ChevronRight size={14} />
-        <span className="text-foreground font-medium">Dashboard</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="relative hidden sm:block">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search anything..."
-            className="h-9 w-64 rounded-md border border-input bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-          />
-        </div>
-        <button className="relative rounded-md p-2 hover:bg-muted">
-          <Bell size={18} />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
-        </button>
-        <div className="flex items-center gap-2 rounded-md border border-border px-2 py-1">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold">
-            {user?.displayName?.charAt(0) ?? "?"}
-          </div>
-          <div className="hidden flex-col sm:flex">
-            <span className="text-xs font-medium">{user?.displayName}</span>
-            <span className="text-[10px] capitalize text-muted-foreground">{user?.role}</span>
-          </div>
-        </div>
-        <button
-          onClick={() => void logout()}
-          className="rounded-md p-2 text-muted-foreground hover:bg-muted"
-          aria-label="Logout"
-        >
-          <LogOut size={16} />
-        </button>
-      </div>
-    </header>
-  )
+export function TopBar({user}:{user:{displayName:string;role:string}|null}) {
+ const {logout}=useAuth(),[notice,setNotice]=useState(false)
+ return <header className="topbar">
+  <div className="mobile-brand"><BrandLockup collapsed/></div>
+  <div className="breadcrumbs"><span>Workspace</span><ChevronRight size={13}/><strong>Command center</strong></div>
+  <div className="top-actions">
+   <label className="global-search"><Search size={14}/><input placeholder="Search anything..."/><kbd>⌘ K</kbd></label>
+   <button className="icon-button notification-trigger" onClick={()=>setNotice(v=>!v)} aria-label="Notifications"><Bell size={17}/><i/></button>
+   <div className="top-divider"/>
+   <div className="top-profile"><div className="avatar small">{user?.displayName?.slice(0,2).toUpperCase()||"NG"}</div><div><strong>{user?.displayName||"Demo Analyst"}</strong><span>{user?.role||"analyst"}</span></div></div>
+   <button className="icon-button" onClick={()=>void logout()} aria-label="Sign out"><LogOut size={15}/></button>
+   {notice&&<div className="notification-popover"><div className="popover-heading"><strong>Notifications</strong><button onClick={()=>setNotice(false)}><X size={13}/></button></div><div className="notification-item"><span className="priority critical">!</span><div><strong>Critical alert detected</strong><small>ALT-2048 · 2 minutes ago</small></div></div><div className="notification-item"><span className="priority high">!</span><div><strong>Case assigned to your queue</strong><small>CASE-0086 · 18 minutes ago</small></div></div><button onClick={()=>setNotice(false)}>Mark all as read</button></div>}
+  </div>
+ </header>
 }
