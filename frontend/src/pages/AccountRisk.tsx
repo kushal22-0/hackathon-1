@@ -1,8 +1,4 @@
-export default function AccountRisk() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Account Risk Profiles</h1>
-      <p className="text-muted-foreground">Live risk view for individual accounts.</p>
-    </div>
-  )
-}
+import { useState } from "react"
+import { Search, ShieldCheck } from "lucide-react"
+const profiles=[{id:"AC-2091",score:92,level:"Critical",signals:["Large outgoing transfer","High transaction frequency","Shared device identifier"],volume:"$82,100"},{id:"AC-4402",score:78,level:"High",signals:["Rapid onward movement","Multiple counterparties"],volume:"$41,900"},{id:"AC-3108",score:54,level:"Medium",signals:["Elevated inbound volume"],volume:"$8,240"}]
+export default function AccountRisk(){const [q,setQ]=useState("AC-2091");const p=profiles.find(x=>x.id.toLowerCase()===q.toLowerCase());return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">FRAUD INTELLIGENCE · E02</div><h1>Account risk profiles</h1><p>Review behavioral risk indicators and linked activity.</p></div><span className="health-check"><ShieldCheck size={13}/> Demo profiles</span></div><section className="panel"><div className="panel-header"><div><h2>Account lookup</h2><p>Try AC-2091, AC-4402 or AC-3108</p></div></div><label className="table-search" style={{width:260,marginTop:18}}><Search size={13}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Account ID"/></label>{p?<div style={{marginTop:22,padding:20,background:"#edf5f8",borderRadius:10}}><div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}><div><div className="eyebrow">ACCOUNT PROFILE</div><h2 style={{fontSize:23,color:"#2a3e48",margin:"7px 0"}}>{p.id}</h2><p style={{fontSize:11,color:"#66808e"}}>Observed transaction volume: {p.volume}</p></div><div style={{textAlign:"right"}}><div style={{fontSize:35,fontWeight:700,color:"#2a3e48"}}>{p.score}<small style={{fontSize:13}}>/100</small></div><span className={`score ${p.level==="Critical"?"critical":"high"}`}>{p.level} risk</span></div></div><h3 style={{fontSize:13,color:"#2a3e48",marginTop:22}}>Risk signals</h3>{p.signals.map(s=><div key={s} className="health-item"><strong>{s}</strong><span>Review</span></div>)}</div>:<p style={{fontSize:12,color:"#754c55",marginTop:20}}>No matching demo profile. Try one of the sample IDs above.</p>}<p style={{fontSize:10,color:"#66808e",marginTop:14}}>Illustrative risk profile; live account-risk endpoint is not exposed in this API build.</p></section></div>}
