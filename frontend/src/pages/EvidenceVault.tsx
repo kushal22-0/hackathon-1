@@ -1,8 +1,4 @@
-export default function EvidenceVault() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Evidence Vault</h1>
-      <p className="text-muted-foreground">Secured evidence storage and PDF export.</p>
-    </div>
-  )
-}
+import { useState } from "react"
+import { FileText, Upload, Download, ShieldCheck } from "lucide-react"
+type Item={name:string;kind:string;date:string;source:string}
+export default function EvidenceVault(){const[items,setItems]=useState<Item[]>([{name:"ALT-2048-risk-explanation.json",kind:"Detection evidence",date:"Today · 09:42",source:"Rule engine"},{name:"CASE-0086-investigation-notes.txt",kind:"Investigation note",date:"Today · 09:18",source:"Analyst demo"},{name:"transaction-cluster-AC2091.csv",kind:"Transaction extract",date:"Yesterday · 16:20",source:"CSV import"}]);function add(file?:File){if(!file)return;setItems(v=>[{name:file.name,kind:"Uploaded demo file",date:"Just now",source:"Local browser session"},...v])}return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">INVESTIGATION · E07</div><h1>Evidence vault</h1><p>Evidence register for traceable investigation work.</p></div><label className="primary-button" style={{cursor:"pointer"}}><Upload size={13}/> Add evidence<input hidden type="file" onChange={e=>add(e.target.files?.[0])}/></label></div><div style={{padding:12,background:"#edf5f8",border:"1px solid #c7d9e1",borderRadius:8,fontSize:11,color:"#516b79",marginBottom:14}}>Uploaded files are listed in this browser session only. Persistent storage, access history and secure evidence permissions are not connected in this demo.</div><section className="panel"><div className="panel-header"><div><h2>Evidence register</h2><p>{items.length} items in this local demonstration</p></div><span className="health-check"><ShieldCheck size={13}/> Demo vault</span></div><div className="data-table-wrap"><table><thead><tr><th>Evidence item</th><th>Type</th><th>Source</th><th>Recorded</th><th>Action</th></tr></thead><tbody>{items.map((x,i)=><tr key={x.name+i}><td><FileText size={13} style={{display:"inline",marginRight:7}}/><strong>{x.name}</strong></td><td>{x.kind}</td><td>{x.source}</td><td>{x.date}</td><td><button className="text-button" onClick={()=>window.print()}><Download size={12}/> Export register</button></td></tr>)}</tbody></table></div></section></div>}
