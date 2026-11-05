@@ -287,6 +287,21 @@ class InMemoryAlertRepository:
             key=lambda alert: (alert.created_at, str(alert.id)),
         )
 
+    def list_for_transactions(
+        self, transaction_ids: Sequence[UUID]
+    ) -> list[Alert]:
+        transaction_id_set = set(transaction_ids)
+        if not transaction_id_set:
+            return []
+        with self.store.lock:
+            alerts = [
+                alert
+                for alert in self.store.alerts.values()
+                if alert.transaction_id in transaction_id_set
+            ]
+        alerts.sort(key=lambda alert: (alert.created_at, str(alert.id)))
+        return alerts
+
     def search(
         self, query: AlertSearchQuery
     ) -> tuple[list[Alert], int]:

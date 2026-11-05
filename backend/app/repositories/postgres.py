@@ -356,6 +356,18 @@ class PostgresAlertRepository:
         )
         return _to_alert(row) if row else None
 
+    def list_for_transactions(
+        self, transaction_ids: Sequence[UUID]
+    ) -> list[Alert]:
+        if not transaction_ids:
+            return []
+        rows = self.session.scalars(
+            select(AlertTable)
+            .where(AlertTable.transaction_id.in_(transaction_ids))
+            .order_by(AlertTable.created_at.asc(), AlertTable.id.asc())
+        ).all()
+        return [_to_alert(row) for row in rows]
+
     def search(
         self, query: AlertSearchQuery
     ) -> tuple[list[Alert], int]:

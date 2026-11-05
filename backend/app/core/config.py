@@ -101,6 +101,11 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10 * 1024 * 1024
     max_ingest_rows: int = 50_000
 
+    # Account risk profiles
+    account_profile_max_transactions: int = Field(
+        default=5_000, ge=100, le=50_000
+    )
+
     detection: DetectionSettings = Field(default_factory=DetectionSettings)
 
     @field_validator("database_url", mode="before")

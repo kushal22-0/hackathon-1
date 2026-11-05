@@ -2,11 +2,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from app.core.config import DetectionSettings
 from app.ml.anomaly import MODEL_READY
 from app.ml.features import TransactionContext
 from app.models.alert import RuleHit
 from app.models.enums import RiskLevel
+
+
+def combine_contributions(contributions: Iterable[float]) -> float:
+    """Combine independent signal strengths with a noisy-OR."""
+
+    remaining_normal = 1.0
+    for contribution in contributions:
+        remaining_normal *= 1.0 - (contribution / 100.0)
+    return round((1.0 - remaining_normal) * 100.0, 2)
 
 
 def risk_level_for_score(score: float) -> RiskLevel:

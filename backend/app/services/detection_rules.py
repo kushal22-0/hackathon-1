@@ -6,6 +6,7 @@ from app.core.config import DetectionSettings
 from app.ml.features import TransactionContext
 from app.models.alert import RuleHit
 from app.models.enums import RuleCode, RuleSeverity
+from app.services.risk_scoring import combine_contributions
 
 
 def _money(value: float) -> str:
@@ -33,16 +34,11 @@ def evaluate_rules(
 
 
 def combine_rule_scores(hits: list[RuleHit]) -> float:
-    """Combine independent rule strengths with a noisy-OR.
+    """Combine independent rule strengths without exceeding 100."""
 
-    Two moderate rules should outweigh either rule alone without allowing the
-    score to exceed 100.
-    """
-
-    remaining_normal = 1.0
-    for hit in hits:
-        remaining_normal *= 1.0 - (hit.score_contribution / 100.0)
-    return round((1.0 - remaining_normal) * 100.0, 2)
+    return combine_contributions(
+        hit.score_contribution for hit in hits
+    )
 
 
 def _evaluate_large_transfer(
