@@ -13,7 +13,7 @@ export function TopBar({user}:{user:{displayName:string;role:string}|null}) {
    <div className="top-divider"/>
    <div className="top-profile"><div className="avatar small">{user?.displayName?.slice(0,2).toUpperCase()||"NG"}</div><div><strong>{user?.displayName||"Demo Analyst"}</strong><span>{user?.role||"analyst"}</span></div></div>
    <button className="icon-button" onClick={()=>void logout()} aria-label="Sign out"><LogOut size={15}/></button>
-   {notice&&<div className="notification-popover"><div className="popover-heading"><strong>Notifications</strong><button onClick={()=>setNotice(false)}><X size={13}/></button></div><div className="notification-item"><span className="priority critical">!</span><div><strong>Critical alert detected</strong><small>ALT-2048 · 2 minutes ago</small></div></div><div className="notification-item"><span className="priority high">!</span><div><strong>Case assigned to your queue</strong><small>CASE-0086 · 18 minutes ago</small></div></div><button onClick={()=>setNotice(false)}>Mark all as read</button></div>}
+   {notice&&<div className="notification-popover"><div className="popover-heading"><strong>Notifications</strong><button onClick={()=>setNotice(false)}><X size={13}/></button></div><div className="notification-item"><span className="priority critical">!</span><div><strong>Critical alert detected</strong><small>ALT-2048 · 2 minutes ago</small></div></div><div className="notification-item"><span className="priority high">!</span><div><strong>Case assigned to your queue</strong><small>CASE-0086 · 18 minutes ago</small></div></div><button onClick={()=>setNotice(false)}>Dismiss notifications</button></div>}
   </div>
  </header>
 }
