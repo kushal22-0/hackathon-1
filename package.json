@@ -1,8 +1,8 @@
 {
-  "name": "fraudnet-ai",
+  "name": "nexguard-ai",
   "version": "0.1.0",
   "private": true,
-  "description": "FraudNet AI — Detect. Investigate. Explain.",
+  "description": "NexGuard AI — Detect. Investigate. Explain.",
   "workspaces": [
     "frontend"
   ],
