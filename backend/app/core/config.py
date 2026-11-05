@@ -87,7 +87,7 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
 
-    app_name: str = "FraudNet AI API"
+    app_name: str = "NexGuard AI API"
     app_version: str = "0.1.0"
     environment: str = "development"
     log_level: str = "INFO"
