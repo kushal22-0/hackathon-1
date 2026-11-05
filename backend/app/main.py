@@ -13,6 +13,7 @@ from app.api.routes.health import router as health_router
 from app.core.config import Settings, get_settings
 from app.core.database import build_database
 from app.core.errors import register_exception_handlers
+from app.ml.anomaly import AnomalyModelManager
 from app.repositories.container import build_memory_repositories
 
 
@@ -45,6 +46,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=_lifespan,
     )
     app.state.settings = app_settings
+    app.state.model_manager = AnomalyModelManager(app_settings.detection)
 
     if app_settings.repository_backend == "memory":
         app.state.memory_repositories = build_memory_repositories()

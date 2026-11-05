@@ -36,6 +36,11 @@ class AlertStatus(StrEnum):
     ESCALATED = "escalated"
 
 
+ACTIVE_ALERT_STATUSES = frozenset(
+    {AlertStatus.OPEN, AlertStatus.TRIAGED, AlertStatus.ESCALATED}
+)
+
+
 class CaseStatus(StrEnum):
     OPEN = "open"
     INVESTIGATING = "investigating"
@@ -52,3 +57,16 @@ class FraudOutcome(StrEnum):
 class UserRole(StrEnum):
     ADMIN = "admin"
     INVESTIGATOR = "investigator"
+
+
+class RuleCode(StrEnum):
+    LARGE_TRANSFER = "large_transfer"
+    HIGH_FREQUENCY = "high_frequency"
+    RAPID_SUCCESSION = "rapid_succession"
+
+
+class RuleSeverity(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"

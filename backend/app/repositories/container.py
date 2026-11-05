@@ -7,20 +7,24 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from app.models.account import Account, Customer
+from app.models.alert import Alert
 from app.models.transaction import Transaction
 from app.repositories.base import (
     AccountRepository,
+    AlertRepository,
     CustomerRepository,
     TransactionRepository,
 )
 from app.repositories.memory import (
     InMemoryAccountRepository,
+    InMemoryAlertRepository,
     InMemoryCustomerRepository,
     InMemoryStore,
     InMemoryTransactionRepository,
 )
 from app.repositories.postgres import (
     PostgresAccountRepository,
+    PostgresAlertRepository,
     PostgresCustomerRepository,
     PostgresTransactionRepository,
 )
@@ -33,6 +37,7 @@ class RepositoryContainer:
     customers: CustomerRepository
     accounts: AccountRepository
     transactions: TransactionRepository
+    alerts: AlertRepository
     session: Session | None = None
 
     def commit(self) -> None:
@@ -49,6 +54,7 @@ class RepositoryContainer:
             customers=PostgresCustomerRepository(session),
             accounts=PostgresAccountRepository(session),
             transactions=PostgresTransactionRepository(session),
+            alerts=PostgresAlertRepository(session),
             session=session,
         )
 
@@ -67,6 +73,7 @@ def build_memory_repositories() -> MemoryRepositories:
         customers=InMemoryCustomerRepository(store),
         accounts=InMemoryAccountRepository(store),
         transactions=InMemoryTransactionRepository(store),
+        alerts=InMemoryAlertRepository(store),
     )
     return MemoryRepositories(store=store, container=container)
 
@@ -77,6 +84,7 @@ def seed_memory_store(
     customers: list[Customer] | None = None,
     accounts: list[Account] | None = None,
     transactions: list[Transaction] | None = None,
+    alerts: list[Alert] | None = None,
 ) -> None:
     with store.lock:
         for customer in customers or []:
@@ -85,3 +93,5 @@ def seed_memory_store(
             store.accounts[account.id] = account
         for transaction in transactions or []:
             store.transactions[transaction.id] = transaction
+        for alert in alerts or []:
+            store.alerts[alert.id] = alert

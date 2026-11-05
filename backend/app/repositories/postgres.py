@@ -12,7 +12,14 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.account import Account, Customer
-from app.models.tables import AccountTable, CustomerTable, TransactionTable
+from app.models.alert import Alert, AlertSearchQuery
+from app.models.enums import ACTIVE_ALERT_STATUSES
+from app.models.tables import (
+    AccountTable,
+    AlertTable,
+    CustomerTable,
+    TransactionTable,
+)
 from app.models.transaction import Transaction, TransactionSearchQuery
 
 
@@ -26,6 +33,10 @@ def _to_account(row: AccountTable) -> Account:
 
 def _to_transaction(row: TransactionTable) -> Transaction:
     return Transaction.model_validate(row)
+
+
+def _to_alert(row: AlertTable) -> Alert:
+    return Alert.model_validate(row)
 
 
 class PostgresCustomerRepository:
@@ -127,6 +138,21 @@ class PostgresTransactionRepository:
     def get_by_id(self, transaction_id: UUID) -> Transaction | None:
         row = self.session.get(TransactionTable, transaction_id)
         return _to_transaction(row) if row else None
+
+    def get_by_ids(self, transaction_ids: Sequence[UUID]) -> list[Transaction]:
+        if not transaction_ids:
+            return []
+        rows = self.session.scalars(
+            select(TransactionTable).where(
+                TransactionTable.id.in_(transaction_ids)
+            )
+        ).all()
+        by_id = {row.id: row for row in rows}
+        return [
+            _to_transaction(by_id[transaction_id])
+            for transaction_id in transaction_ids
+            if transaction_id in by_id
+        ]
 
     def existing_ids(self, transaction_ids: Sequence[UUID]) -> set[UUID]:
         if not transaction_ids:
@@ -270,4 +296,112 @@ class PostgresTransactionRepository:
             conditions.append(TransactionTable.device_id == query.device_id)
         if query.ip_address is not None:
             conditions.append(TransactionTable.ip_address == query.ip_address)
+        return cast(list, conditions)
+
+
+class PostgresAlertRepository:
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def add(self, alert: Alert) -> Alert:
+        row = AlertTable(
+            id=alert.id,
+            transaction_id=alert.transaction_id,
+            risk_score=Decimal(str(alert.risk_score)),
+            rule_hits=[
+                hit.model_dump(mode="json") for hit in alert.rule_hits
+            ],
+            ml_score=Decimal(str(alert.ml_score)),
+            explanation=alert.explanation,
+            evidence=alert.evidence,
+            status=alert.status.value,
+            created_at=alert.created_at,
+            updated_at=alert.updated_at,
+        )
+        self.session.add(row)
+        self.session.flush()
+        return _to_alert(row)
+
+    def update(self, alert: Alert) -> Alert:
+        row = self.session.get(AlertTable, alert.id)
+        if row is None:
+            raise ValueError(f"Alert {alert.id} does not exist")
+        row.risk_score = Decimal(str(alert.risk_score))
+        row.rule_hits = [hit.model_dump(mode="json") for hit in alert.rule_hits]
+        row.ml_score = Decimal(str(alert.ml_score))
+        row.explanation = alert.explanation
+        row.evidence = alert.evidence
+        row.status = alert.status.value
+        row.updated_at = alert.updated_at
+        self.session.flush()
+        return _to_alert(row)
+
+    def get_by_id(self, alert_id: UUID) -> Alert | None:
+        row = self.session.get(AlertTable, alert_id)
+        return _to_alert(row) if row else None
+
+    def get_active_by_transaction_id(
+        self, transaction_id: UUID
+    ) -> Alert | None:
+        row = self.session.scalar(
+            select(AlertTable)
+            .where(
+                AlertTable.transaction_id == transaction_id,
+                AlertTable.status.in_(
+                    [status.value for status in ACTIVE_ALERT_STATUSES]
+                ),
+            )
+            .order_by(AlertTable.created_at.desc(), AlertTable.id.desc())
+            .limit(1)
+        )
+        return _to_alert(row) if row else None
+
+    def search(
+        self, query: AlertSearchQuery
+    ) -> tuple[list[Alert], int]:
+        conditions = self._search_conditions(query)
+        total = (
+            self.session.scalar(
+                select(func.count())
+                .select_from(AlertTable)
+                .where(*conditions)
+            )
+            or 0
+        )
+
+        sort_column = (
+            AlertTable.risk_score
+            if query.sort_by == "risk_score"
+            else AlertTable.created_at
+        )
+        ordering = (
+            sort_column.desc() if query.sort_dir == "desc" else sort_column.asc()
+        )
+        id_ordering = (
+            AlertTable.id.desc()
+            if query.sort_dir == "desc"
+            else AlertTable.id.asc()
+        )
+        rows = self.session.scalars(
+            select(AlertTable)
+            .where(*conditions)
+            .order_by(ordering, id_ordering)
+            .offset((query.page - 1) * query.page_size)
+            .limit(query.page_size)
+        ).all()
+        return [_to_alert(row) for row in rows], total
+
+    @staticmethod
+    def _search_conditions(query: AlertSearchQuery) -> list:
+        conditions = []
+        if query.status is not None:
+            conditions.append(AlertTable.status == query.status.value)
+        if query.transaction_id is not None:
+            conditions.append(
+                AlertTable.transaction_id == query.transaction_id
+            )
+        if query.min_risk_score is not None:
+            conditions.append(AlertTable.risk_score >= query.min_risk_score)
+        if query.max_risk_score is not None:
+            conditions.append(AlertTable.risk_score <= query.max_risk_score)
         return cast(list, conditions)

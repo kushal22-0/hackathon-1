@@ -8,6 +8,8 @@ from threading import RLock
 from uuid import UUID
 
 from app.models.account import Account, Customer
+from app.models.alert import Alert, AlertSearchQuery
+from app.models.enums import ACTIVE_ALERT_STATUSES
 from app.models.transaction import Transaction, TransactionSearchQuery
 
 
@@ -18,6 +20,7 @@ class InMemoryStore:
         self.customers: dict[UUID, Customer] = {}
         self.accounts: dict[UUID, Account] = {}
         self.transactions: dict[UUID, Transaction] = {}
+        self.alerts: dict[UUID, Alert] = {}
         self.lock = RLock()
 
 
@@ -87,6 +90,14 @@ class InMemoryTransactionRepository:
     def get_by_id(self, transaction_id: UUID) -> Transaction | None:
         with self.store.lock:
             return self.store.transactions.get(transaction_id)
+
+    def get_by_ids(self, transaction_ids: Sequence[UUID]) -> list[Transaction]:
+        with self.store.lock:
+            return [
+                self.store.transactions[transaction_id]
+                for transaction_id in transaction_ids
+                if transaction_id in self.store.transactions
+            ]
 
     def existing_ids(self, transaction_ids: Sequence[UUID]) -> set[UUID]:
         with self.store.lock:
@@ -234,4 +245,112 @@ class InMemoryTransactionRepository:
         return not (
             query.ip_address is not None
             and transaction.ip_address != query.ip_address
+        )
+
+
+class InMemoryAlertRepository:
+    def __init__(self, store: InMemoryStore) -> None:
+        self.store = store
+
+    def add(self, alert: Alert) -> Alert:
+        with self.store.lock:
+            self._ensure_active_uniqueness(alert)
+            self.store.alerts[alert.id] = alert
+            return alert
+
+    def update(self, alert: Alert) -> Alert:
+        with self.store.lock:
+            if alert.id not in self.store.alerts:
+                raise ValueError(f"Alert {alert.id} does not exist")
+            self._ensure_active_uniqueness(alert)
+            self.store.alerts[alert.id] = alert
+            return alert
+
+    def get_by_id(self, alert_id: UUID) -> Alert | None:
+        with self.store.lock:
+            return self.store.alerts.get(alert_id)
+
+    def get_active_by_transaction_id(
+        self, transaction_id: UUID
+    ) -> Alert | None:
+        with self.store.lock:
+            candidates = [
+                alert
+                for alert in self.store.alerts.values()
+                if alert.transaction_id == transaction_id
+                and alert.status in ACTIVE_ALERT_STATUSES
+            ]
+        if not candidates:
+            return None
+        return max(
+            candidates,
+            key=lambda alert: (alert.created_at, str(alert.id)),
+        )
+
+    def search(
+        self, query: AlertSearchQuery
+    ) -> tuple[list[Alert], int]:
+        with self.store.lock:
+            items = [
+                alert
+                for alert in self.store.alerts.values()
+                if self._matches(alert, query)
+            ]
+
+        reverse = query.sort_dir == "desc"
+        if query.sort_by == "risk_score":
+            items.sort(
+                key=lambda alert: (
+                    alert.risk_score,
+                    alert.created_at,
+                    str(alert.id),
+                ),
+                reverse=reverse,
+            )
+        else:
+            items.sort(
+                key=lambda alert: (
+                    alert.created_at,
+                    alert.risk_score,
+                    str(alert.id),
+                ),
+                reverse=reverse,
+            )
+
+        total = len(items)
+        start = (query.page - 1) * query.page_size
+        end = start + query.page_size
+        return items[start:end], total
+
+    def _ensure_active_uniqueness(self, alert: Alert) -> None:
+        if alert.status not in ACTIVE_ALERT_STATUSES:
+            return
+        for existing in self.store.alerts.values():
+            if (
+                existing.id != alert.id
+                and existing.transaction_id == alert.transaction_id
+                and existing.status in ACTIVE_ALERT_STATUSES
+            ):
+                raise ValueError(
+                    "An active alert already exists for transaction "
+                    f"{alert.transaction_id}"
+                )
+
+    @staticmethod
+    def _matches(alert: Alert, query: AlertSearchQuery) -> bool:
+        if query.status is not None and alert.status != query.status:
+            return False
+        if (
+            query.transaction_id is not None
+            and alert.transaction_id != query.transaction_id
+        ):
+            return False
+        if (
+            query.min_risk_score is not None
+            and alert.risk_score < query.min_risk_score
+        ):
+            return False
+        return not (
+            query.max_risk_score is not None
+            and alert.risk_score > query.max_risk_score
         )

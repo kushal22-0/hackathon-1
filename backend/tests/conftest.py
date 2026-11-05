@@ -10,7 +10,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.core.config import Settings
+from app.core.config import DetectionSettings, Settings
 from app.main import create_app
 from app.models.account import Account, Customer
 from app.models.enums import Channel
@@ -93,14 +93,16 @@ def build_csv(rows: list[dict[str, object]]) -> bytes:
     return buffer.getvalue().encode("utf-8")
 
 
-@pytest.fixture()
-def app() -> FastAPI:
+def create_test_app(
+    *, detection: DetectionSettings | None = None
+) -> FastAPI:
     application = create_app(
         Settings(
             environment="test",
             repository_backend="memory",
             max_upload_bytes=10 * 1024 * 1024,
             max_ingest_rows=10_000,
+            detection=detection or DetectionSettings(),
         )
     )
     seed_memory_store(
@@ -109,6 +111,11 @@ def app() -> FastAPI:
         accounts=[make_account(index) for index in range(5)],
     )
     return application
+
+
+@pytest.fixture()
+def app() -> FastAPI:
+    return create_test_app()
 
 
 @pytest.fixture()

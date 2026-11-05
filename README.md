@@ -132,6 +132,41 @@ sample transactions through the real endpoint.
 
 ---
 
+## Detection engine
+
+Every assessment produces a 0–100 risk score:
+
+```text
+risk = 0.60 × rule score + 0.40 × IsolationForest anomaly percentile
+```
+
+- **Large transfer** — amount at or above `$10,000`, escalating at 2× and 4×.
+- **High frequency** — five outbound transfers from one account in ten minutes.
+- **Rapid succession** — three outbound transfers from one account in sixty seconds.
+
+Rule contributions are combined with a noisy-OR, so multiple independent signals
+raise confidence without exceeding 100. The IsolationForest is trained on recent
+transaction behavior (amount relative to the sender's history, sender/receiver
+velocity, unique counterparties, and shared device/IP reuse). Its score is the
+percentile of anomaly strength within the training population.
+
+When fewer than 50 transactions exist, the model reports `insufficient_data` and
+rules carry the full score, so cold-start deployments still raise large-transfer
+and velocity alerts.
+
+An alert is opened at a risk score of 65. Re-scanning a transaction refreshes its
+active alert instead of creating a duplicate; dismissed alerts are not reopened.
+Each alert keeps the rule hits, weighted scores, transaction snapshot, and a
+human-readable explanation as a point-in-time audit trail.
+
+On the deterministic demo corpus, the default configuration detects every
+injected large transfer and fan-in consolidation, 75% of rapid-fire rows, and
+produces no alerts on legitimate rows. Circular flows, fan-in/fan-out networks,
+and mule rings that never trip a value/velocity rule are intentionally left to
+the NetworkX fund-flow tracing service.
+
+---
+
 ## Phase 1 API
 
 | Method | Path | Purpose |
@@ -140,6 +175,10 @@ sample transactions through the real endpoint.
 | `POST` | `/api/v1/transactions/ingest` | All-or-nothing CSV ingestion |
 | `GET` | `/api/v1/transactions` | Paginated filters: account, amount, time, channel, label, device, IP |
 | `GET` | `/api/v1/transactions/{id}` | Transaction detail |
+| `POST` | `/api/v1/detection/scan` | Scan recent transactions or up to 500 explicit IDs |
+| `POST` | `/api/v1/detection/transactions/{id}` | Assess one transaction and open/refresh its alert |
+| `GET` | `/api/v1/alerts` | Paginated alert filters: status, transaction, risk range |
+| `GET` | `/api/v1/alerts/{id}` | Alert detail with rule hits, scores, and evidence |
 
 Errors use one envelope across the API:
 
@@ -161,7 +200,7 @@ Errors use one envelope across the API:
 - [x] Supabase migrations, pgvector, RLS policies, and indexes
 - [x] Synthetic demo data with injected fraud patterns and ground truth
 - [x] CSV ingestion and paginated transaction search
-- [ ] Detection engine: rules + IsolationForest + weighted risk score
+- [x] Detection engine: rules + IsolationForest + weighted risk score
 - [ ] Account risk profiles
 - [ ] NetworkX fund-flow tracing
 - [ ] Backend test suite

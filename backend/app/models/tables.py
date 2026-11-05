@@ -7,6 +7,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    JSON,
     Date,
     DateTime,
     ForeignKey,
@@ -17,6 +18,7 @@ from sqlalchemy import (
     Uuid,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -88,5 +90,31 @@ class TransactionTable(Base):
     channel: Mapped[str] = mapped_column(Text, nullable=False, default="api")
     label: Mapped[int | None] = mapped_column(SmallInteger)
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+JSON_VARIANT = JSON().with_variant(JSONB, "postgresql")
+
+
+class AlertTable(Base):
+    __tablename__ = "alerts"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    transaction_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid,
+        ForeignKey("transactions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    risk_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
+    rule_hits: Mapped[list[dict]] = mapped_column(JSON_VARIANT, nullable=False)
+    ml_score: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
+    explanation: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence: Mapped[dict] = mapped_column(JSON_VARIANT, nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False, default="open")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
