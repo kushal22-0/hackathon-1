@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Activity, FileUp, Loader2, RefreshCw, Search } from "lucide-react"
-import { apiRequest } from "@/lib/api"
+import { API_BASE_URL, apiRequest } from "@/lib/api"
 
 type Transaction = { id:string; from_account:string; to_account:string; amount:number; currency:string; timestamp:string; channel:string; label:number|null }
 type Page = { items:Transaction[]; total:number; page:number; total_pages:number }
@@ -8,7 +8,7 @@ export default function Transactions() {
  const [items,setItems]=useState<Transaction[]>([]),[total,setTotal]=useState(0),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[query,setQuery]=useState("")
  const load=useCallback(async()=>{setLoading(true);setError("");try{const data=await apiRequest<Page>("/api/v1/transactions?page=1&page_size=100");setItems(data.items);setTotal(data.total)}catch(e){setError(e instanceof Error?e.message:"Could not load transactions")}finally{setLoading(false)}},[])
  useEffect(()=>{void load()},[load])
- async function upload(file?:File){if(!file)return;setBusy(true);setNotice("");setError("");try{const form=new FormData();form.append("file",file);const r=await fetch("http://localhost:8000/api/v1/transactions/ingest",{method:"POST",body:form});const body=await r.json();if(!r.ok)throw new Error(body?.error?.message||"CSV import failed");setNotice(`Imported ${body.accepted} transactions from ${body.filename}`);await load()}catch(e){setError(e instanceof Error?e.message:"CSV import failed")}finally{setBusy(false)}}
+ async function upload(file?:File){if(!file)return;setBusy(true);setNotice("");setError("");try{const form=new FormData();form.append("file",file);const r=await fetch(`${API_BASE_URL}/api/v1/transactions/ingest`,{method:"POST",body:form});const body=await r.json();if(!r.ok)throw new Error(body?.error?.message||"CSV import failed");setNotice(`Imported ${body.accepted} transactions from ${body.filename}`);await load()}catch(e){setError(e instanceof Error?e.message:"CSV import failed")}finally{setBusy(false)}}
  async function scan(){setBusy(true);setError("");setNotice("");try{const result=await apiRequest<{scanned:number;alerts_created:number;alerts_required:number}>("/api/v1/detection/scan",{method:"POST",body:JSON.stringify({limit:500})});setNotice(`Scanned ${result.scanned} transactions · ${result.alerts_created} new alerts created · ${result.alerts_required} signals met the alert threshold`)}catch(e){setError(e instanceof Error?e.message:"Detection scan failed")}finally{setBusy(false)}}
  const filtered=items.filter(t=>(t.id+t.from_account+t.to_account).toLowerCase().includes(query.toLowerCase()))
  const money=(n:number,c:string)=>new Intl.NumberFormat("en-US",{style:"currency",currency:c||"USD",maximumFractionDigits:2}).format(n)
