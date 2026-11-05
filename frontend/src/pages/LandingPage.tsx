@@ -105,7 +105,7 @@ function SystemPulse() {
             Control plane
           </span>
         </div>
-        <Badge variant={online ? "success" : checking ? "warning" : "outline"}>
+        <Badge variant={online ? "default" : checking ? "secondary" : "outline"}>
           <StatusDot online={online} />
           <span className="ml-1.5">
             {online ? "API online" : checking ? "Checking" : "API offline"}

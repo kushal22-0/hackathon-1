@@ -113,7 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       if (data.user) {
-        const payload = decodeJwtPayload(data.session?.access_token ?? "")
+        const { data: sessionData } = await supabase.auth.getSession()
+        const accessToken = sessionData?.session?.access_token
+        const payload = decodeJwtPayload(accessToken ?? "")
         const authUser = buildAuthUser(
           payload ?? {},
           data.user.email ?? "",

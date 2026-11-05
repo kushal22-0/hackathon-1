@@ -18,7 +18,7 @@ function getInitialTheme(): Theme {
   return "dark"
 }
 
-function applyTheme(theme: Theme, resolved: "dark" | "light") {
+function applyTheme(_theme: Theme, resolved: "dark" | "light") {
   if (typeof document === "undefined") return
   const root = document.documentElement
   root.classList.toggle("dark", resolved === "dark")
@@ -46,18 +46,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (typeof localStorage !== "undefined") {
       localStorage.setItem("nexguard-theme", theme)
     }
-  }, [theme])
-
-  React.useEffect(() => {
-    if (theme !== "system" || typeof window === "undefined") return
-    const media = window.matchMedia("(prefers-color-scheme: dark)")
-    const handler = (e: MediaQueryListEvent) => {
-      const resolved = e.matches ? "dark" : "light"
-      setResolvedTheme(resolved)
-      applyTheme("system", resolved)
-    }
-    media.addEventListener("change", handler)
-    return () => media.removeEventListener("change", handler)
   }, [theme])
 
   const setTheme = React.useCallback((next: Theme) => {

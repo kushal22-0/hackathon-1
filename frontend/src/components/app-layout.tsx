@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 import { Outlet } from "react-router-dom"
 import { useAuth } from "@/lib/auth"
-import { BrandLockup } from "@/components/brand-lockup"
 import { NavSidebar } from "@/components/nav-sidebar"
 import { TopBar } from "@/components/top-bar"
 import { CopilotFAB } from "@/components/copilot-fab"

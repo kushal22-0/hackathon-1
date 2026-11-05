@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export function NexGuardMark({ className }: { className?: string }) {
   return (

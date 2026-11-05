@@ -65,7 +65,7 @@ export function NavSidebar() {
   const { user, hasRole } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
 
-  const visibleItems = navItems.filter((item) => {
+  const visibleNavItems = navItems.filter((item) => {
     if (!item.roles) return true
     return item.roles.some((r) => hasRole(r))
   })
@@ -86,10 +86,10 @@ export function NavSidebar() {
         </button>
       </div>
       <nav className="flex-1 overflow-y-auto px-3">
-        {Object.entries(groupedItems).map(([section, items]) => {
-          const visible = items.filter((i) =>
-            navItems.find((n) => n.label === i.label && n.path === i.path)
-          )
+{Object.entries(groupedItems).map(([section, items]) => {
+            const visible = items.filter((i) =>
+              visibleNavItems.find((n) => n.label === i.label && n.path === i.path)
+            )
           if (visible.length === 0) return null
           return (
             <div key={section} className="mb-4">

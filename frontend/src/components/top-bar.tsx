@@ -1,15 +1,12 @@
 import { Bell, ChevronRight, LogOut, Search } from "lucide-react"
-import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth"
 import { BrandLockup } from "@/components/brand-lockup"
-import { cn } from "@/lib/utils"
 
 interface TopBarProps {
   user: { displayName: string; role: string } | null
 }
 
 export function TopBar({ user }: TopBarProps) {
-  const navigate = useNavigate()
   const { logout } = useAuth()
 
   return (

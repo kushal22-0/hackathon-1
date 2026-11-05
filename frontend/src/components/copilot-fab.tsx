@@ -1,13 +1,8 @@
 import { Bot, Sparkles } from "lucide-react"
-import { useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 export function CopilotFAB() {
-  const [open, setOpen] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
-
-  if (open) return null
 
   return (
     <button
