@@ -19,7 +19,7 @@ export function NavSidebar() {
  return <aside className={`sidebar ${collapsed?"collapsed":""}`}>
   <button className="collapse-button" onClick={()=>setCollapsed(v=>!v)} aria-label="Toggle sidebar">{collapsed?<ChevronRight size={13}/>:<ChevronLeft size={13}/>}</button>
   <div className="brand-lockup"><BrandLockup collapsed={collapsed}/></div>
-  <nav className="side-nav">{groups.map(([section,items])=><div className="nav-group" key={section}>{!collapsed&&<div className="nav-label">{section}</div>}{items.map(([label,Icon,path])=><button key={path} title={collapsed?label:undefined} onClick={()=>navigate(path)} className={`nav-item ${location.pathname===path?"active":""}`}><Icon size={16}/>{!collapsed&&<span>{label}</span>}{label==="Fraud alerts"&&!collapsed&&<span className="nav-count">12</span>}</button>)}</div>)}</nav>
+  <nav className="side-nav">{groups.map(([section,items])=><div className="nav-group" key={section}>{!collapsed&&<div className="nav-label">{section}</div>}{items.map(([label,Icon,path])=><button key={path} title={collapsed?label:undefined} onClick={()=>navigate(path)} className={`nav-item ${location.pathname===path?"active":""}`}><Icon size={16}/>{!collapsed&&<span>{label}</span>}</button>)}</div>)}</nav>
   <div className="sidebar-footer"><div className="profile-card"><div className="avatar">{user?.displayName?.slice(0,2).toUpperCase()||"NG"}</div>{!collapsed&&<div className="profile-copy"><strong>{user?.displayName||"Demo Analyst"}</strong><span>{user?.role||"analyst"}</span></div>}</div></div>
  </aside>
 }
