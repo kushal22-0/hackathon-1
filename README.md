@@ -7,6 +7,18 @@ NexGuard AI is a hackathon prototype for exploring suspicious financial activity
 
 > **Demo integrity:** The included financial dataset and dashboard examples are synthetic. A risk alert is a signal for human review, not proof of fraud. Supabase, OpenAI RAG and remote MCP integrations are optional/future integrations unless explicitly configured and tested.
 
+## Data integrity and test fixtures
+
+The dashboard and directory views now display API-backed values or an explicit empty state; they do not invent customer, account, alert, case, network, or model-performance records. The CSVs under `test/fixtures/` are synthetic fixtures for testing only. They are not live financial data.
+
+For a PostgreSQL-backed test run, configure `REPOSITORY_BACKEND=postgres` and `DATABASE_URL`, then seed only the fixture customer/account master data from `backend/`:
+
+```powershell
+python -m scripts.seed_demo_data --data-dir ..\\test\\fixtures --skip-transactions
+```
+
+Then upload `test/fixtures/transactions_review_signals.csv` from Transaction Monitoring and run detection. The default in-memory backend has no account-master records, so it will reject fixture transactions until account master data is loaded. For real deployments, use authorized source data and secure PostgreSQL configuration.
+
 ## Quick start (Windows)
 
 Requirements: Node.js 20+, Python 3.11 recommended.
