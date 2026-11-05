@@ -1,0 +1,1 @@
+"""FraudNet AI backend application."""
