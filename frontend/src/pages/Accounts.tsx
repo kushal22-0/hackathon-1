@@ -1,0 +1,2 @@
+import { Wallet } from "lucide-react"
+export default function Accounts(){return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">FINANCIAL DATA</div><h1>Accounts</h1><p>Account records are not fabricated or preloaded.</p></div></div><section className="panel"><div className="empty-state"><Wallet size={24}/><h2>No account directory endpoint connected</h2><p>Transactions can be ingested only when their account identifiers exist in the configured account master data.</p></div></section></div>}

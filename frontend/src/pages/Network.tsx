@@ -1,0 +1,2 @@
+import { Network } from "lucide-react"
+export default function NetworkPage(){return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">FRAUD INTELLIGENCE</div><h1>Transaction network</h1><p>Account relationships require persisted transfer graph data.</p></div></div><section className="panel"><div className="empty-state"><Network size={24}/><h2>No network data available</h2><p>No illustrative nodes are displayed. A graph endpoint must be connected to build this view from actual transactions.</p></div></section></div>}

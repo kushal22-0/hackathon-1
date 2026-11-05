@@ -1,0 +1,2 @@
+import { GitBranch } from "lucide-react"
+export default function MoneyFlow(){return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">FRAUD INTELLIGENCE</div><h1>Money flow tracker</h1><p>Trace fund movement from actual transaction records.</p></div></div><section className="panel"><div className="empty-state"><GitBranch size={24}/><h2>No fund-flow trace loaded</h2><p>This build does not show a made-up transfer scenario. Select a real transaction after graph traversal is exposed by the backend.</p></div></section></div>}

@@ -1,0 +1,2 @@
+import { Users } from "lucide-react"
+export default function Customers(){return <div className="workspace"><div className="page-heading"><div><div className="eyebrow">FINANCIAL DATA</div><h1>Customers</h1><p>Customer records are not fabricated or preloaded.</p></div></div><section className="panel"><div className="empty-state"><Users size={24}/><h2>No customer data source connected</h2><p>The current API exposes transaction and alert endpoints only. Connect a customer master-data endpoint or database before showing customer records here.</p></div></section></div>}
