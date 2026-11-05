@@ -24,7 +24,6 @@ function Metric({ icon: Icon, label, value, trend, detail, tone }: { icon: typeo
   return <div className="metric-card"><div className={`metric-icon ${tone}`}><Icon size={17}/></div><div className="metric-label">{label}<span className="trend up"><ArrowUpRight size={12}/>{trend}</span></div><div className="metric-value">{value}</div><div className="metric-detail"><span>{detail}</span><Activity size={14}/></div></div>
 }
 export default function Dashboard() {
-  const [period, setPeriod] = useState("Last 24 hours")
   const [query, setQuery] = useState("")
   const filteredAlerts = useMemo(() => alerts.filter(a => (a.name + a.id + a.account).toLowerCase().includes(query.toLowerCase())), [query])
   return <div className="workspace">
@@ -41,7 +40,7 @@ export default function Dashboard() {
     </div>
     <div className="main-grid">
       <section className="panel activity-panel">
-        <div className="panel-header"><div><h2>Transaction activity</h2><p>Volume across monitored payment rails</p></div><select className="select-control" value={period} onChange={e=>setPeriod(e.target.value)}><option>Last 24 hours</option><option>Last 7 days</option><option>Last 30 days</option></select></div>
+        <div className="panel-header"><div><h2>Transaction activity</h2><p>Volume across monitored payment rails</p></div><span className="select-control">Last 24 hours</span></div>
         <div className="chart-legend"><span><i className="legend-blue"/> Normal transactions <strong>2.83M</strong></span><span><i className="legend-red"/> Suspicious <strong>1,284</strong></span></div>
         <div className="activity-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={activity} margin={{top:8,right:8,left:-22,bottom:0}}><defs><linearGradient id="normalFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7fa6b8" stopOpacity={0.28}/><stop offset="95%" stopColor="#7fa6b8" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="#dce8ed" strokeDasharray="3 4" vertical={false}/><XAxis dataKey="time" tick={{fontSize:9,fill:"#66808e"}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:9,fill:"#66808e"}} axisLine={false} tickLine={false}/><Tooltip contentStyle={{borderRadius:8,border:"1px solid #c7d9e1",fontSize:11}}/><Area type="monotone" dataKey="normal" stroke="#6f9eaf" strokeWidth={2} fill="url(#normalFill)"/><Area type="monotone" dataKey="suspicious" stroke="#d66d72" strokeWidth={2} fill="none"/></AreaChart></ResponsiveContainer></div>
       </section>
