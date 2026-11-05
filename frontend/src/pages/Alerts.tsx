@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { AlertTriangle, RefreshCw, Search, ShieldAlert } from "lucide-react"
-import { Link } from "react-router-dom"
+import { RefreshCw, Search, ShieldAlert } from "lucide-react"
 import { apiRequest } from "@/lib/api"
 type Alert={id:string;transaction_id:string;risk_score:number;risk_level:string;explanation:string;status:string;created_at:string}
 type Page={items:Alert[];total:number;page:number;total_pages:number}
