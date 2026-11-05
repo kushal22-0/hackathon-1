@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BriefcaseBusiness, Download, Filter, Plus, ShieldCheck, Wallet, ArrowRight, MoreHorizontal, Search, CheckCircle2 } from "lucide-react"
+import { Activity, AlertTriangle, ArrowUpRight, BriefcaseBusiness, Download, Filter, Plus, ShieldCheck, Wallet, ArrowRight, MoreHorizontal, Search, CheckCircle2 } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 const activity = [
