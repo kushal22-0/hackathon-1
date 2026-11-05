@@ -76,3 +76,55 @@ export async function apiRequest<T>(
   }
   return (await response.json()) as T
 }
+
+export async function apiStream(
+  path: string,
+  body: unknown,
+  accessToken: string | null,
+  onChunk: (chunk: string) => void,
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    let bodyText: ApiErrorBody | null = null
+    try {
+      bodyText = (await response.json()) as ApiErrorBody
+    } catch {
+      // ignore
+    }
+    throw new ApiError(
+      bodyText?.error?.message ?? `Request failed with status ${response.status}`,
+      response.status,
+      bodyText?.error?.code ?? "request_failed",
+      bodyText?.error?.details ?? null,
+    )
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) {
+    throw new ApiError("No response body", 500, "no_body")
+  }
+  const decoder = new TextDecoder()
+  let buffer = ""
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split("\n")
+    buffer = lines.pop() ?? ""
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue
+      const payload = line.slice(6).trim()
+      if (!payload) continue
+      onChunk(payload)
+    }
+  }
+}

@@ -16,3 +16,20 @@ class HealthResponse(BaseModel):
     service: str
     version: str
     environment: str
+
+
+class ErrorResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    error: "ApiError"
+
+
+class ApiError(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str
+    message: str
+    details: dict | list | None = None
+
+
+ErrorResponse.model_rebuild()
