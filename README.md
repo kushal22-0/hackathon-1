@@ -111,12 +111,56 @@ npm run build        # frontend type-check + production build
 
 ---
 
+## Demo data
+
+The generated dataset lives in `data/` and includes **5,000 transactions**
+(500 fraud) with deterministic IDs and ground-truth labels.
+
+To load it into Supabase after applying the migrations:
+
+```bash
+cd backend
+python -m scripts.seed_demo_data --database-url "$DATABASE_URL"
+```
+
+Use `--skip-transactions` to load only customers and accounts (for example,
+before exercising `POST /api/v1/transactions/ingest` with the sample CSV).
+
+The default in-memory backend starts empty. The test suite includes an
+end-to-end test that seeds the generated master data and ingests all 5,000
+sample transactions through the real endpoint.
+
+---
+
+## Phase 1 API
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Public liveness/build info |
+| `POST` | `/api/v1/transactions/ingest` | All-or-nothing CSV ingestion |
+| `GET` | `/api/v1/transactions` | Paginated filters: account, amount, time, channel, label, device, IP |
+| `GET` | `/api/v1/transactions/{id}` | Transaction detail |
+
+Errors use one envelope across the API:
+
+```json
+{
+  "error": {
+    "code": "transaction_not_found",
+    "message": "Transaction not found",
+    "details": {}
+  }
+}
+```
+
+---
+
 ## Phase 1 status
 
 - [x] Monorepo scaffold and local developer workflow
-- [ ] Supabase migrations, pgvector, RLS policies, and indexes
-- [ ] Synthetic demo data with injected fraud patterns and ground truth
-- [ ] CSV ingestion and paginated transaction search
+- [x] Supabase migrations, pgvector, RLS policies, and indexes
+- [x] Synthetic demo data with injected fraud patterns and ground truth
+- [x] CSV ingestion and paginated transaction search
 - [ ] Detection engine: rules + IsolationForest + weighted risk score
 - [ ] Account risk profiles
 - [ ] NetworkX fund-flow tracing
