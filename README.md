@@ -6,10 +6,7 @@ FraudNet AI is a full-stack fraud analytics workspace: ingest transaction data, 
 suspicious activity with configurable rules plus an IsolationForest model, investigate
 fund flows, and explain every alert in language a human can act on.
 
-This repository is being delivered in phases. **Phase 1** establishes the data model,
-transaction pipeline, detection engine, investigation services, authentication, and
-architecture. Graph exploration, cases UI, analytics, Copilot, and MCP tools are deferred
-to later phases.
+The repository contains the FastAPI fraud-detection foundation and an integrated React dashboard. The dashboard is currently a presentation/demo layer; connect it to the API before describing its sample metrics as live production data. RAG Copilot and remote MCP are planned integrations and must be configured and tested before claiming they are operational.
 
 ---
 
@@ -31,7 +28,7 @@ to later phases.
 │   ├── migrations/        # Supabase PostgreSQL / pgvector SQL migrations
 │   ├── scripts/           # demo data generation, seeding, knowledge ingestion
 │   └── tests/
-├── frontend/              # React + TypeScript + Vite + Tailwind + shadcn/ui
+├── frontend/              # React + TypeScript + Vite + Tailwind; integrated hackathon-ui dashboard
 ├── data/                  # Generated demo data and knowledge-base source docs
 ├── docs/                  # architecture and MCP design
 └── package.json           # root workspace commands
@@ -218,3 +215,23 @@ Deployment targets: **Vercel** for `frontend/` and **Render** for `backend/`.
   the backend connects through `DATABASE_URL` and verifies user JWTs itself.
 - Row-Level Security policies protect direct Supabase client access. The API always
   performs its own role checks in addition to database policies.
+
+
+## Integrated dashboard
+
+The visual dashboard from the companion `hackathon-ui` repository has been consolidated into
+`frontend/src/App.tsx` and `frontend/src/App.css` in this main repository. The separate
+`hackathon-ui` repository is preserved as a backup/source; the submission's main codebase is
+this repository.
+
+**Demo integrity:** dashboard cards and charts currently contain illustrative sample values.
+The embedded Copilot is a UI prototype and does not yet perform live RAG retrieval. The MCP
+directory is reserved for a future authenticated remote MCP server; do not describe it as
+connected until the endpoint and client connection have been tested.
+
+## 90-minute submission focus
+
+1. Run the frontend and backend locally and resolve startup/build errors.
+2. Demonstrate transaction ingestion, detection scan, and alert review through the API.
+3. Keep dashboard sample values clearly identified as demo data until wired to API responses.
+4. Submit this repository as the single source of truth. Do not delete the companion UI repository.
