@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { Activity, AlertTriangle, FileUp, Loader2, RefreshCw, Search } from "lucide-react"
+import { Activity, FileUp, Loader2, RefreshCw, Search } from "lucide-react"
 import { apiRequest } from "@/lib/api"
 
 type Transaction = { id:string; from_account:string; to_account:string; amount:number; currency:string; timestamp:string; channel:string; label:number|null }
