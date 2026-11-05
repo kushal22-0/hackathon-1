@@ -57,3 +57,11 @@ th { color:#66808e; border-bottom-color:#d6e6ef; }td { color:#516b79; border-bot
 .copilot-fab { color:#f7fbfd; border-color:#2a3e48; background:#2a3e48; box-shadow:0 8px 27px #2a3e4830; }.copilot-panel { background:#f7fbfd; border-color:#b7cbd6; box-shadow:0 20px 60px #2a3e4830; }.copilot-head { background:#d6e6ef; border-bottom-color:#b7cbd6; }.copilot-title strong { color:#2a3e48; }.copilot-title span { color:#4d8b79; }.copilot-icon { color:#2a3e48; background:#f7fbfd; }.copilot-welcome { border-color:#b7cbd6; background:#edf5f8; }.copilot-welcome strong { color:#2a3e48; }.copilot-welcome p,.suggestion-list button { color:#66808e; }.suggestion-list button { border-bottom-color:#d6e6ef; }.copilot-input { border-top-color:#d6e6ef; }.copilot-input input { color:#2a3e48; background:#f7fbfd; border-color:#b7cbd6; }.copilot-input button { color:#f7fbfd; background:#2a3e48; }.copilot-input small { color:#7fa6b8; }.copilot-response .user-bubble { color:#f7fbfd; background:#7fa6b8; }.ai-bubble { background:#edf5f8; border-color:#b7cbd6; }.ai-bubble p { color:#516b79; }.ai-bubble span { color:#7fa6b8; }
 .drawer-backdrop { background:#2a3e4833; }.alert-drawer { background:#f7fbfd; border-left-color:#b7cbd6; box-shadow:-15px 0 45px #2a3e4825; }.drawer-head h2,.drawer-section h3,.detail-list strong { color:#2a3e48; }.drawer-risk { border-color:#d6e6ef; background:#edf5f8; }.drawer-risk strong { color:#2a3e48; }.drawer-risk span,.detail-list span { color:#66808e; }.drawer-section { border-bottom-color:#d6e6ef; }.detail-list div { border-bottom-color:#d6e6ef; }.toast { color:#2a3e48; background:#d9eee8; border-color:#8fc7b7; }.placeholder-page { border-color:#b7cbd6; background:#edf5f8; }.placeholder-icon { color:#2a3e48; border-color:#b7cbd6; background:#d6e6ef; }
 
+
+
+/* Empty states keep unsupported data areas honest and readable. */
+.empty-state { min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:32px 20px; text-align:center; color:var(--muted); }
+.empty-state > svg { color:var(--blue); }
+.empty-state h2 { margin:2px 0; color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:16px; }
+.empty-state p { max-width:560px; margin:0; color:var(--faint); font-size:12px; line-height:1.7; }
+button:disabled { opacity:.55; cursor:not-allowed; }
